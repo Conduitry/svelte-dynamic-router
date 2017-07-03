@@ -1,0 +1,51 @@
+<div ref:mount/>
+
+<script>
+	export default {
+		oncreate() {
+			document.addEventListener('click', clickHandler.bind(this))
+			window.addEventListener('popstate', popHandler.bind(this))
+			this._r = new (this.get('component'))({ target: this.refs.mount, data: { r: { router: this, pathname: document.location.pathname } } })
+		},
+		methods: {
+			go(url, replace) {
+				history[replace ? 'replaceState' : 'pushState'](null, '', location.origin + url)
+				if (this._r) {
+					let r = this._r.get('r')
+					r.pathname = url
+					this._r.set({ r })
+				}
+			},
+		},
+	}
+
+	function clickHandler(event) {
+		if (event.ctrlKey || event.metaKey || event.shiftKey || event.which !== 1) {
+			return
+		}
+		let elm = event.target
+		while (elm.nodeName !== 'A') {
+			elm = elm.parentElement
+			if (!elm) {
+				return
+			}
+		}
+		if (elm.target) {
+			return
+		}
+		let url = elm.href
+		if (!url.startsWith(document.location.origin + '/')) {
+			return
+		}
+		event.preventDefault()
+		this.go(url.slice(document.location.origin.length))
+	}
+
+	function popHandler() {
+		if (this._r) {
+			let r = this._r.get('r')
+			r.pathname = document.location.pathname
+			this._r.set({ r })
+		}
+	}
+</script>
