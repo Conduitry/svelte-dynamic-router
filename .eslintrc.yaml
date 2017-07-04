@@ -1,0 +1,9 @@
+env:
+  es6: true
+  browser: true
+plugins:
+  - html
+extends: 'eslint:recommended'
+parserOptions:
+  ecmaVersion: 2017
+  sourceType: module
