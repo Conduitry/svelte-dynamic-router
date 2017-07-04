@@ -1,20 +1,18 @@
-<div ref:mount/>
+{{yield}}
 
 <script>
 	export default {
 		oncreate() {
 			document.addEventListener('click', clickHandler.bind(this))
 			window.addEventListener('popstate', popHandler.bind(this))
-			this._r = new (this.get('component'))({ target: this.refs.mount, data: { r: { router: this, pathname: document.location.pathname } } })
+			this.set({ r: { router: this, pathname: document.location.pathname } })
 		},
 		methods: {
 			go(url, replace) {
 				history[replace ? 'replaceState' : 'pushState'](null, '', location.origin + url)
-				if (this._r) {
-					let r = this._r.get('r')
-					r.pathname = url
-					this._r.set({ r })
-				}
+				let r = this.get('r')
+				r.pathname = url
+				this.set({ r })
 			},
 		},
 	}
@@ -42,10 +40,8 @@
 	}
 
 	function popHandler() {
-		if (this._r) {
-			let r = this._r.get('r')
-			r.pathname = document.location.pathname
-			this._r.set({ r })
-		}
+		let r = this.get('r')
+		r.pathname = document.location.pathname
+		this.set({ r })
 	}
 </script>
