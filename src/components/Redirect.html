@@ -1,8 +1,9 @@
 <script>
-	export default {
-		oncreate() {
-			let { r: { router }, to, push } = this.get()
-			router.go(to, !push)
-		},
-	}
+	export let to, push;
+
+	import { ROUTER } from './Router.html';
+	import { getContext } from 'svelte';
+
+	const { go } = getContext(ROUTER);
+	go(to, push);
 </script>

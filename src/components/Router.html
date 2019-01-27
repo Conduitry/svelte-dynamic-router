@@ -1,47 +1,39 @@
-{{yield}}
+<script context='module'>
+	export const ROUTER = {};
+</script>
 
 <script>
-	export default {
-		oncreate() {
-			document.addEventListener('click', clickHandler.bind(this))
-			window.addEventListener('popstate', popHandler.bind(this))
-			this.set({ r: { router: this, pathname: document.location.pathname } })
-		},
-		methods: {
-			go(url, replace) {
-				history[replace ? 'replaceState' : 'pushState'](null, '', location.origin + url)
-				let r = this.get('r')
-				r.pathname = url
-				this.set({ r })
-			},
-		},
-	}
+	import { setContext, onDestroy } from 'svelte';
+	import { writable } from 'svelte/store';
 
-	function clickHandler(event) {
-		if (event.ctrlKey || event.metaKey || event.shiftKey || event.which !== 1) {
-			return
-		}
-		let elm = event.target
-		while (elm.nodeName !== 'A') {
-			elm = elm.parentElement
-			if (!elm) {
-				return
+	const pathname = writable(document.location.pathname);
+	const go = (url, replace) => {
+		history[replace ? 'replaceState' : 'pushState'](null, '', location.origin + url);
+		pathname.set(url);
+	};
+	setContext(ROUTER, { pathname, go });
+
+	const clickHandler = event => {
+		if (!event.ctrlKey && !event.metaKey && !event.shiftKey && event.which === 1) {
+			const elm = event.target.closest('a');
+			if (elm && !elm.target) {
+				const url = elm.href;
+				if (url.startsWith(document.location.origin + '/')) {
+					event.preventDefault();
+					go(url.slice(document.location.origin.length));
+				}
 			}
 		}
-		if (elm.target) {
-			return
-		}
-		let url = elm.href
-		if (!url.startsWith(document.location.origin + '/')) {
-			return
-		}
-		event.preventDefault()
-		this.go(url.slice(document.location.origin.length))
-	}
+	};
+	document.addEventListener('click', clickHandler);
 
-	function popHandler() {
-		let r = this.get('r')
-		r.pathname = document.location.pathname
-		this.set({ r })
-	}
+	const popstateHandler = () => pathname.set(document.location.pathname);
+	window.addEventListener('popstate', popstateHandler);
+
+	onDestroy(() => {
+		document.removeEventListener('click', clickHandler);
+		window.removeEventListener('popstate', popstateHandler);
+	});
 </script>
+
+<slot/>

@@ -1,40 +1,12 @@
-<div ref:mount/>
-
 <script>
-	import matchPath from '../utils/matchPath.js'
+	export let path, exact;
 
-	export default {
-		oncreate() {
-			this.observe('r', update.bind(this))
-			this.observe('path', update.bind(this))
-		},
-	}
+	import { ROUTER } from './Router.html';
+	import matchPath from '../utils/matchPath.js';
+	import { getContext } from 'svelte';
 
-	function update() {
-		let {
-			r: { match, pathname, router } = {},
-			path,
-			exact,
-			component,
-		} = this.get()
-		let { _r } = this
-		if (path) {
-			let match = matchPath(pathname, { path, exact })
-			if (match) {
-				if (_r) {
-					_r.set({ match, r: { match, pathname, router } })
-				} else {
-					_r = new component({ target: this.refs.mount, data: { match, r: { match, pathname, router } } })
-				}
-			} else if (_r) {
-				_r.destroy()
-				_r = null
-			}
-		} else if (_r) {
-			_r.set({ match, r: { match, pathname, router } })
-		} else {
-			_r = new component({ target: this.refs.mount, data: { match, r: { match, pathname, router } } })
-		}
-		this._r = _r
-	}
+	const { pathname } = getContext(ROUTER);
+	let match; $: match = path && matchPath($pathname, { path, exact });
 </script>
+
+{#if match}<slot {match}/>{/if}
