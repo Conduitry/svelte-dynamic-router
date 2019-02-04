@@ -1,6 +1,16 @@
 {
+	"name": "svelte-dynamic-router",
+	"version": "0.0.0",
+	"main": "dist/index.cjs.js",
+	"module": "dist/index.es.js",
+	"svelte": "src/index.js",
+	"files": [
+		"dist",
+		"src"
+	],
 	"scripts": {
-		"build": "rollup -c"
+		"build": "rollup -c",
+		"prepare": "npm run build"
 	},
 	"devDependencies": {
 		"rollup": "^1.1.0",
